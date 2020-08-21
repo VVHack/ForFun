@@ -4,70 +4,73 @@
 
 using namespace std;
 
-using tree_t=function<const void*(function<const void*(const void*,const void*,const void*)>)>;
+template<typename T>
+using tree_t=function<const void*(function<const void*(const void*,const T*,const void*)>)>;
 
 template<typename T>
-tree_t make_tree(const void* left, const T* val, const void* right) {
-    return [=](function<const void*(const void*,const void*,const void*)> f) {
-        return f(left, (const void*)val, right);
+tree_t<T> make_tree(const void* left, const T* val, const void* right) {
+    return [=](function<const void*(const void*,const T*,const void*)> f) {
+        return f(left, val, right);
     };
 }
 
 template<typename T>
-const tree_t* Tree(const void* left, const T* val, const void* right) {
+const tree_t<T>* Tree(const void* left, const T* val, const void* right) {
     return new auto(make_tree(left, val, right));
 }
 
 template<typename T>
-const tree_t* Leaf(const T* val) {
+const tree_t<T>* Leaf(const T* val) {
     return Tree(nullptr, val, nullptr);
 }
 
 template<typename T>
-T TreeVal(const tree_t* tree) {
-    return *(const T*)((*tree)([](const void* left, const void* val, const void* right) {
+T TreeVal(const tree_t<T>* tree) {
+    return *(const T*)((*tree)([](const void* left, const T* val, const void* right) {
         return val;
     }));
 }
 
 template<typename T>
-const T* TreeValPointer(const tree_t* tree) {
-    return (const T*)((*tree)([](const void* left, const void* val, const void* right) {
+const T* TreeValPointer(const tree_t<T>* tree) {
+    return (const T*)((*tree)([](const void* left, const T* val, const void* right) {
         return val;
     }));
 }
 
-const tree_t* TreeLeft(const tree_t* tree) {
-    return (const tree_t*)((*tree)([](const void* left, const void* val, const void* right) {
+template<typename T>
+const tree_t<T>* TreeLeft(const tree_t<T>* tree) {
+    return (const tree_t<T>*)((*tree)([](const void* left, const T* val, const void* right) {
         return left;
     }));
 }
 
-const tree_t* TreeRight(const tree_t* tree) {
-    return (const tree_t*)((*tree)([](const void* left, const void* val, const void* right) {
+template<typename T>
+const tree_t<T>* TreeRight(const tree_t<T>* tree) {
+    return (const tree_t<T>*)((*tree)([](const void* left, const T* val, const void* right) {
         return right;
     }));
 }
 
 template <typename T>
-string traversal(const tree_t* tree) {
-    if (TreeLeft(tree) == nullptr && TreeRight(tree) == nullptr) {
+string traversal(const tree_t<T>* tree) {
+    if (TreeLeft<T>(tree) == nullptr && TreeRight<T>(tree) == nullptr) {
         return to_string(TreeVal<T>(tree));
     }
-    if (TreeLeft(tree) == nullptr) {
+    if (TreeLeft<T>(tree) == nullptr) {
         return to_string(TreeVal<T>(tree)) + string(" ") + traversal<T>(TreeRight(tree));
     }
-    if (TreeRight(tree) == nullptr) {
-        return traversal<T>(TreeLeft(tree)) + string(" ") + to_string(TreeVal<T>(tree));
+    if (TreeRight<T>(tree) == nullptr) {
+        return traversal<T>(TreeLeft<T>(tree)) + string(" ") + to_string(TreeVal<T>(tree));
     }
-    return traversal<T>(TreeLeft(tree)) + string(" ") + to_string(TreeVal<T>(tree)) + string(" ") + traversal<T>(TreeRight(tree));
+    return traversal<T>(TreeLeft<T>(tree)) + string(" ") + to_string(TreeVal<T>(tree)) + string(" ") + traversal<T>(TreeRight<T>(tree));
 }
 
 template<typename T>
-void deallocate(const tree_t* tree) {
+void deallocate(const tree_t<T>* tree) {
     if (nullptr == tree) return;
-    deallocate<T>(TreeLeft(tree));
-    deallocate<T>(TreeRight(tree));
+    deallocate<T>(TreeLeft<T>(tree));
+    deallocate<T>(TreeRight<T>(tree));
     delete TreeValPointer<T>(tree);
     delete tree;
 }
