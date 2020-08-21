@@ -17,8 +17,8 @@ tree_t Leaf(long val) {
 }
 
 long TreeVal(const tree_t* tree) {
-    return (long)((*tree)([](const void* left, long val, const void* right) {
-        return (const void*)val;
+    return *(const long*)((*tree)([](const void* left, long val, const void* right) {
+        return (const void*)&val;
     }));
 }
 
@@ -49,13 +49,13 @@ string traversal(const tree_t* tree) {
 
 int main()
 {
-    const auto l1 = Leaf(5);
-    const auto l2 = Leaf(6);
-    const auto t1 = Tree(&l1, 3, &l2);
-    const auto l3 = Leaf(7);
-    const auto l4 = Leaf(9);
-    const auto t2 = Tree(&l3, 4, &l4);
-    const auto t3 = Tree(&t1, 8, &t2);
+    const tree_t l1 = Leaf(5);
+    const tree_t l2 = Leaf(6);
+    const tree_t t1 = Tree(&l1, 3, &l2);
+    const tree_t l3 = Leaf(7);
+    const tree_t l4 = Leaf(9);
+    const tree_t t2 = Tree(&l3, 4, &l4);
+    const tree_t t3 = Tree(&t1, 8, &t2);
     cout << traversal(&t3) << endl; // prints 5 3 6 8 7 4 9 !!!
     return 0;
 }
