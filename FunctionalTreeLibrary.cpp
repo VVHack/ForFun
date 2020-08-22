@@ -8,19 +8,20 @@ template<typename T>
 using tree_t=function<const void*(function<const void*(const void*,const T*,const void*)>)>;
 
 template<typename T>
-tree_t<T> make_tree(const void* left, const T* val, const void* right) {
+tree_t<T> make_tree(const void* left, const T val, const void* right) {
+    const T* v = new T(std::move(val));
     return [=](function<const void*(const void*,const T*,const void*)> f) {
-        return f(left, val, right);
+        return f(left, v, right);
     };
 }
 
 template<typename T>
-const tree_t<T>* Tree(const void* left, const T* val, const void* right) {
+const tree_t<T>* Tree(const void* left, const T val, const void* right) {
     return new auto(make_tree(left, val, right));
 }
 
 template<typename T>
-const tree_t<T>* Leaf(const T* val) {
+const tree_t<T>* Leaf(const T val) {
     return Tree(nullptr, val, nullptr);
 }
 
@@ -77,7 +78,7 @@ void deallocate(const tree_t<T>* tree) {
 
 int main()
 {
-    const auto t = Tree<int>(Leaf<int>(new int(6)), new int(8), Tree<int>(Leaf<int>(new int(4)), new int(7), Leaf<int>(new int(5))));
+    const auto t = Tree<int>(Leaf<int>(6), 8, Tree<int>(Leaf<int>(4), 7, Leaf<int>(5)));
     cout << traversal<int>(t) << endl; // prints 6 8 4 7 5!!!!!
     deallocate<int>(t);
     return 0;
