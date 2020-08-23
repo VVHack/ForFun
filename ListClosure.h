@@ -89,4 +89,31 @@ void deallocate(List<T> list) {
     delete list;
 }
 
+template<typename T, typename U>
+List<U> map(List<T> list, std::function<U(T)> f) {
+    if (empty(list)) {
+        return MakeEmptyList<U>();
+    }
+    return MakeList(f(ListHead(list)), map(ListTail(list), f));
+}
+
+template<typename T>
+List<T> filter(List<T> list, std::function<bool(T)> f) {
+    if (empty(list)) {
+        return MakeEmptyList<T>();
+    }
+    if (f(ListHead(list))) {
+        return MakeList(ListHead(list), filter(ListTail(list), f));
+    }
+    return filter(ListTail(list), f);
+}
+
+template<typename T, typename U>
+List<U> flatmap(List<T> list, std::function<List<U>(T)> f) {
+    if (empty(list)) {
+        return MakeEmptyList<U>();
+    }
+    return concat(f(ListHead(list)), flatmap(ListTail(list), f));
+}
+
 #endif

@@ -38,9 +38,12 @@ List<Tree<T>> TreeChildren(Tree<T> tree) {
 }
 
 template<typename T>
+void deallocate(Tree<T> tree);
+
+template<typename T>
 void deallocate_children(List<Tree<T>> children) {
     if (nullptr == children) return;
-    delete ListHead(children);
+    deallocate(ListHead(children));
     deallocate_children(ListTail(children));
 }
 
